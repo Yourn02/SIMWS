@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Data - SIM Warung Sembako Berkah</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#000000', // Hitam pekat
+              DEFAULT: '#1e3a8a', // Navy (Biru Dongker)
+              light: '#bfdbfe', // Biru muda untuk teks
+            },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
+  <aside class="w-64 bg-gradient-to-b from-black to-brand text-white flex flex-col shadow-lg z-10">
+    <div class="flex flex-col items-center justify-center text-center p-6 border-b border-slate-800v">
+      <img src="assets/WB.png" alt="Logo Warung Berkah" class="w-40 h-auto object-contain mb-2" />
+
+      <div>
+        <p class="text-xs text-slate-100 tracking-wider font-medium uppercase">Sistem Inventaris v1.0</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-2">
+      <a href="Dashboard.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-chart-pie w-6"></i> Dashboard Utama
+      </a>
+      <a href="Master-data.html"
+        class="flex items-center px-4 py-3 bg-white/10 text-white rounded-lg font-semibold shadow-sm border border-white/5 backdrop-blur-sm transition">
+        <i class="fa-solid fa-boxes-stacked w-6"></i> Master Data Barang
+      </a>
+      <a href="Stok-masuk.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-cart-arrow-down w-6"></i> Catat Stok Masuk
+      </a>
+      <a href="Kasir.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-cash-register w-6"></i> Modul Kasir (POS)
+      </a>
+      <a href="Laporan.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-file-invoice-dollar w-6"></i> Laporan Keuangan
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-slate-800 text-center text-sm text-brand-light">
+      <p><i class="fa-solid fa-user-circle"></i> Login sbg: Pemilik</p>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+    <header
+      class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-800">Katalog Master Data Barang</h2>
+      <div class="text-slate-500 font-medium flex items-center gap-4">
+        <div class="relative inline-block">
+          <button onclick="toggleNotifikasi()"
+            class="relative p-2 text-slate-600 hover:text-blue-600 focus:outline-none transition">
+            <i class="fa-solid fa-bell text-xl"></i>
+            <span id="badge-notif"
+              class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
+          </button>
+
+          <div id="dropdown-notif"
+            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden transform origin-top-right transition-all duration-200">
+            <div class="bg-slate-50 px-4 py-3 border-b border-slate-100 flex justify-between items-center">
+              <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">Notifikasi Sistem</span>
+              <span id="jumlah-notif-teks"
+                class="text-[11px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full">0 Baru</span>
+            </div>
+
+            <div id="konten-notif-list" class="max-h-64 overflow-y-auto divide-y divide-slate-50">
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-wrap items-center justify-between gap-4 w-full p-6 bg-white border-b border-slate-200">
+
+      <div class="flex flex-grow items-center gap-4">
+        <div class="relative flex-grow">
+          <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
+          <input id="cari-barang" onkeyup="filterData()" type="text" placeholder="Cari nama barang..."
+            class="pl-10 pr-4 py-2 w-full border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+        </div>
+        <select id="filter-kategori" onchange="filterData()"
+          class="px-4 py-2 border border-slate-300 rounded-lg outline-none cursor-pointer text-sm">
+          <option value="Semua">Semua Kategori</option>
+          <option value="Sembako">Sembako</option>
+          <option value="Makanan">Makanan</option>
+          <option value="Minuman">Minuman</option>
+          <option value="Kebutuhan">Kebutuhan</option>
+        </select>
+
+        <select id="limit-data" onchange="gantiLimit()"
+          class="px-4 py-2 border border-slate-300 rounded-lg outline-none cursor-pointer text-sm">
+          <option value="5">5 Data</option>
+          <option value="10" selected>10 Data</option>
+          <option value="20">20 Data</option>
+          <option value="50">50 Data</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 ml-auto">
+        <button onclick="tambahBarang()"
+          class="bg-brand hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded-lg transition shadow-md whitespace-nowrap">
+          <i class="fa-solid fa-plus"></i> Tambah Barang
+        </button>
+        <button onclick="bukaArsip()"
+          class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition shadow-md whitespace-nowrap">
+          <i class="fa-solid fa-box-archive"></i> Lihat Arsip
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto flex-1">
+      <table class="w-full text-left border-collapse" id="tabel-barang">
+        <thead>
+          <tr class="bg-slate-50 text-slate-500 text-sm uppercase tracking-wider border-b border-slate-200">
+            <th class="px-6 py-4 font-semibold">Nama Barang</th>
+            <th class="px-6 py-4 font-semibold">Kategori</th>
+            <th class="px-6 py-4 font-semibold">Harga Modal</th>
+            <th class="px-6 py-4 font-semibold">Harga Jual</th>
+            <th class="px-6 py-4 font-semibold text-center">Stok</th>
+            <th class="px-6 py-4 font-semibold text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 text-sm" id="tabel-barang">
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="p-4 border-t border-slate-200 flex justify-between items-center bg-slate-50 rounded-b-xl">
+
+      <div class="text-sm text-slate-600">
+        Menampilkan <span id="info-tampil" class="font-bold text-slate-800">0</span> dari <span id="info-total"
+          class="font-bold text-slate-800">0</span> data barang
+      </div>
+
+      <div id="tombol-pagination" class="flex gap-1">
+      </div>
+
+    </div>
+    </div>
+    </div>
+    </div>
+  </main>
+
+  <script>
+    // 1. Fungsi Tambah Barang
+    function tambahBarang() {
+      // Meminta input dari pengguna melalui prompt bawaan browser
+      let nama = prompt('Masukkan Nama Barang:');
+      if (!nama) return; // Batal jika kosong
+
+      let kategori = prompt('Masukkan Kategori (Sembako/Makanan/Minuman/Kebutuhan):', 'Sembako');
+      let modal = prompt('Masukkan Harga Modal (Contoh: Rp 10.000):', 'Rp ');
+      let jual = prompt('Masukkan Harga Jual (Contoh: Rp 12.000):', 'Rp ');
+      let stok = prompt('Masukkan Jumlah Stok (Contoh: 10 Pcs):', '10 Pcs');
+
+      // Mengambil elemen tbody dari tabel
+      let tbody = document.querySelector('#tabel-barang tbody');
+
+      // Membuat elemen baris (tr) baru
+      let barisBaru = document.createElement('tr');
+      barisBaru.className = 'hover:bg-slate-50 transition';
+
+      // Mengisi kolom-kolom tabel dengan data yang diinput
+      barisBaru.innerHTML = `
+                <td class="px-6 py-4 font-medium text-slate-800">${nama}</td>
+                <td class="px-6 py-4">
+                    <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-semibold">${kategori}</span>
+                </td>
+                <td class="px-6 py-4 text-slate-600">${modal}</td>
+                <td class="px-6 py-4 font-semibold text-brand">${jual}</td>
+                <td class="px-6 py-4 text-center">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">${stok}</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <div class="flex justify-center gap-2">
+                        <button onclick="editBarang(this)" class="text-blue-600 hover:bg-blue-50 p-2 rounded transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="hapusBarang(this)" class="text-red-600 hover:bg-red-50 p-2 rounded transition" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </td>
+            `;
+
+      // Menambahkan baris baru ke paling atas tabel
+      tbody.insertBefore(barisBaru, tbody.firstChild);
+      alert('Berhasil: ' + nama + ' telah ditambahkan ke data master!');
+    }
+
+    // 2. Fungsi Hapus Barang
+    function hapusBarang(tombol) {
+      // Mencari baris (tr) tempat tombol ini berada
+      let baris = tombol.closest('tr');
+      // Mengambil nama barang dari kolom pertama
+      let namaBarang = baris.querySelector('td').innerText;
+
+      // Meminta konfirmasi sebelum menghapus
+      if (confirm("Apakah Anda yakin ingin menghapus data '" + namaBarang + "'?")) {
+        baris.remove();
+        alert('Data berhasil dihapus.');
+      }
+    }
+
+    // 3. Fungsi Edit Barang
+    function editBarang(tombol) {
+      let baris = tombol.closest('tr');
+      let sel = baris.querySelectorAll('td');
+
+      // Mengambil nama barang lama
+      let namaLama = sel[0].innerText;
+
+      // Meminta nama barang baru
+      let namaBaru = prompt('Ubah Nama Barang:', namaLama);
+
+      // Jika user tidak membatalkan (klik Ok) dan tidak kosong, ubah teksnya
+      if (namaBaru !== null && namaBaru !== '') {
+        sel[0].innerText = namaBaru;
+        tampilkanToastEditSukses();
+      }
+    }
+
+    // 4. Fungsi Pindah Navigasi Halaman
+    function pindahHalaman(tombol) {
+      // Hilangkan warna biru dari semua tombol angka
+      let semuaTombolAngka = document.querySelectorAll('.btn-hal');
+      semuaTombolAngka.forEach(function (btn) {
+        btn.className = 'btn-hal px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 transition';
+      });
+
+      // Tambahkan warna biru hanya ke tombol yang sedang diklik
+      tombol.className = 'btn-hal px-3 py-1 border border-brand bg-brand text-white rounded transition';
+
+      // Efek simulasi memuat data
+      alert('Memuat data untuk halaman ' + tombol.innerText + '...');
+    }
+  </script>
+  <script src="js/master-data.js"></script>
+  <div id="modal-tambah" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4">
+      <h2 class="text-xl font-bold mb-4 text-slate-800">Tambah Barang Baru</h2>
+      <div class="space-y-4">
+        <input id="in-nama" type="text" placeholder="Nama Barang"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+        <input id="in-kategori" type="text" placeholder="Kategori"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+        <div class="grid grid-cols-2 gap-2">
+          <input id="in-modal" type="number" placeholder="Harga Modal"
+            class="p-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+          <input id="in-jual" type="number" placeholder="Harga Jual"
+            class="p-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+        </div>
+        <input id="in-stok" type="number" placeholder="Jumlah Stok"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none" />
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="tutupModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+        <button onclick="simpanBarang()" class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-blue-900">Simpan
+          Barang</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-arsip" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 m-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-box-archive mr-2"></i> Arsip Barang</h2>
+        <button onclick="tutupArsip()" class="text-slate-500 hover:text-red-500"><i
+            class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <div class="max-h-96 overflow-y-auto">
+        <table class="w-full text-left">
+          <thead class="bg-slate-50 text-slate-500 text-sm">
+            <tr>
+              <th class="p-3">Nama Barang</th>
+              <th class="p-3">Kategori</th>
+              <th class="p-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-arsip-body" class="divide-y">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="toast-barang-edit"
+    class="hidden fixed bottom-5 right-5 z-50 transform transition-all duration-500 scale-90 opacity-0">
+    <div
+      class="bg-blue-600 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-blue-500">
+      <div
+        class="bg-white text-blue-600 w-7 h-7 rounded-full flex items-center justify-center shadow-sm font-black text-sm">
+        <i class="fa-solid fa-pen-to-square"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm leading-tight">Perubahan Disimpan!</h4>
+        <p class="text-xs text-blue-100 mt-0.5">Data master barang telah berhasil diperbarui.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-barang-arsip"
+    class="hidden fixed bottom-5 right-5 z-50 transform transition-all duration-500 scale-90 opacity-0">
+    <div
+      class="bg-slate-700 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-600">
+      <div
+        class="bg-white text-slate-700 w-7 h-7 rounded-full flex items-center justify-center shadow-sm font-black text-sm">
+        <i class="fa-solid fa-box-archive"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm leading-tight">Barang Diarsipkan!</h4>
+        <p class="text-xs text-slate-300 mt-0.5">Barang telah dipindahkan ke daftar nonaktif.</p>
+      </div>
+    </div>
+  </div>
+  <div id="toast-barang-aktif"
+    class="fixed bottom-5 right-5 z-[70] flex items-center w-full max-w-xs p-4 text-slate-800 bg-white rounded-xl shadow-xl border border-slate-100 transform scale-90 opacity-0 transition-all duration-500 hidden">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-50 rounded-lg">
+      <i class="fa-solid fa-circle-check text-base"></i>
+    </div>
+    <div class="ms-3 text-xs font-semibold">Barang berhasil diaktifkan kembali!</div>
+  </div>
+  <div id="modal-edit-barang"
+    class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+
+      <div class="bg-blue-600 px-6 py-4 flex justify-between items-center text-white">
+        <h3 class="font-bold text-base">Edit Data Barang</h3>
+        <button onclick="tutupModalEditKustom()" class="text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="edit-id-barang">
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nama Barang</label>
+          <input type="text" id="edit-nama" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+          <select id="edit-kategori" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none">
+            <option value="Sembako">Sembako</option>
+            <option value="Makanan">Makanan</option>
+            <option value="Minuman">Minuman</option>
+            <option value="Kebutuhan">Kebutuhan</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Harga Modal</label>
+            <input type="number" id="edit-modal" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Harga Jual</label>
+            <input type="number" id="edit-jual" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Stok Master</label>
+          <input type="number" id="edit-stok" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none">
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 flex justify-end gap-2 border-t">
+        <button onclick="tutupModalEditKustom()"
+          class="px-4 py-2 text-xs font-bold text-slate-500 rounded-xl">Batal</button>
+        <button onclick="prosesSimpanEdit()"
+          class="px-5 py-2 text-xs font-bold text-white bg-blue-600 rounded-xl shadow-md">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-konfirmasi-arsip"
+    class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-all duration-300">
+
+      <div class="p-6 text-center space-y-3">
+        <div
+          class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black shadow-sm animate-pulse">
+          <i class="fa-solid fa-box-archive"></i>
+        </div>
+        <h3 class="font-bold text-lg text-slate-800">Arsipkan Barang?</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">Barang ini akan dinonaktifkan dan dipindahkan ke dalam gudang
+          arsip sistem.</p>
+
+        <input type="hidden" id="arsip-id-barang">
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 flex justify-center gap-3 border-t border-slate-100">
+        <button onclick="tutupModalArsipKustom()"
+          class="w-full py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition">
+          Batal
+        </button>
+        <button onclick="prosesEksekusiArsip()"
+          class="w-full py-2.5 text-xs font-bold text-white bg-slate-700 hover:bg-slate-800 rounded-xl shadow-md transition">
+          Ya, Arsipkan
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-konfirmasi"
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[60] hidden">
+    <div
+      class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-sm p-6 scale-95 transition-all duration-300">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 mb-4">
+        <i class="fa-solid fa-circle-question text-xl"></i>
+      </div>
+
+      <div class="text-center mb-6">
+        <h3 class="text-base font-bold text-slate-800 mb-1">Konfirmasi Aktivasi</h3>
+        <p class="text-sm text-slate-500">Apakah kamu yakin ingin mengaktifkan kembali barang ini ke katalog?</p>
+      </div>
+
+      <div class="flex space-x-3">
+        <button id="btn-batal-aktifkan"
+          class="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition">
+          Batal
+        </button>
+        <button id="btn-ya-aktifkan"
+          class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-200 transition">
+          Ya, Aktifkan
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-validasi-kosong"
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[150] hidden">
+    <div
+      class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-sm p-6 scale-95 transition-all duration-300">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-50 text-amber-500 mb-4">
+        <i class="fa-solid fa-circle-exclamation text-xl"></i>
+      </div>
+
+      <div class="text-center mb-6">
+        <h3 class="text-base font-bold text-slate-800 mb-1">Data Belum Lengkap!</h3>
+        <p class="text-sm text-slate-500 px-2">Mohon periksa kembali. Semua kolom data barang wajib diisi dan tidak
+          boleh kosong!</p>
+      </div>
+
+      <div class="flex">
+        <button id="btn-mengerti-validasi"
+          class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm shadow-amber-200 transition">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="toast-edit-sukses" class="fixed bottom-5 right-5 z-[150] flex items-center w-full max-w-xs p-4 text-slate-800 bg-white rounded-xl shadow-xl border border-slate-100 transform scale-90 opacity-0 transition-all duration-500 hidden">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-50 rounded-lg">
+        <i class="fa-solid fa-circle-check text-base"></i>
+    </div>
+    <div class="ms-3 text-xs font-semibold">Data barang berhasil diperbarui!</div>
+</div>
+</body>
+
+</html>

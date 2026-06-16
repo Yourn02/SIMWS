@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catat Stok Masuk - SIM Warung Sembako Berkah</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#000000',
+              DEFAULT: '#1e3a8a',
+              light: '#bfdbfe',
+            },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
+
+  <aside class="w-64 bg-gradient-to-b from-black to-brand text-white flex flex-col shadow-lg z-10 shrink-0">
+    <div class="flex flex-col items-center justify-center text-center p-6 border-b border-slate-800v">
+      <img src="assets/WB.png" alt="Logo Warung Berkah" class="w-40 h-auto object-contain mb-2" />
+
+      <div>
+        <p class="text-xs text-slate-100 tracking-wider font-medium uppercase">Sistem Inventaris v1.0</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-2">
+      <a href="Dashboard.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-chart-pie w-6"></i> Dashboard Utama
+      </a>
+      <a href="Master-data.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-boxes-stacked w-6"></i> Master Data Barang
+      </a>
+      <a href="Stok-masuk.html"
+        class="flex items-center px-4 py-3 bg-white/10 text-white rounded-lg font-semibold shadow-sm border border-white/5 backdrop-blur-sm transition">
+        <i class="fa-solid fa-cart-arrow-down w-6"></i> Catat Stok Masuk
+      </a>
+      <a href="Kasir.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-cash-register w-6"></i> Modul Kasir (POS)
+      </a>
+      <a href="Laporan.html"
+        class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition">
+        <i class="fa-solid fa-file-invoice-dollar w-6"></i> Laporan Keuangan
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-slate-800 text-center text-sm text-brand-light">
+      <p><i class="fa-solid fa-user-circle"></i> Login sbg: Pemilik</p>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+    <header
+      class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-800">Pencatatan Stok Masuk (Kulakan)</h2>
+      <div class="text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-2"></i> <span
+          id="tanggal-hari-ini">Memuat tanggal...</span></div>
+    </header>
+
+    <div class="p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-brand text-white px-6 py-4 border-b border-blue-900">
+              <h3 class="font-bold text-lg"><i class="fa-solid fa-plus-circle mr-2"></i> Form Barang Masuk</h3>
+              <p class="text-blue-200 text-sm mt-1">Tambahkan stok dari supplier ke gudang.</p>
+            </div>
+
+            <form id="form-stok" class="p-6 space-y-5">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Pilih Barang <span
+                    class="text-red-500">*</span></label>
+                <select id="pilih-barang"
+                  class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-slate-600 transition"
+                  required>
+                  <option value="" disabled selected>-- Memuat Data Barang... --</option>
+                </select>
+                <p class="text-xs text-slate-500 mt-1">Hanya menampilkan barang yang sudah ada di Master Data.</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Jumlah Tambahan Stok <span
+                    class="text-red-500">*</span></label>
+                <div class="flex items-center gap-3">
+                  <input id="jumlah-masuk" type="number" min="1" placeholder="0"
+                    class="w-2/3 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-slate-600 transition"
+                    required />
+                  <span
+                    class="w-1/3 bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 text-slate-500 text-center font-medium">Pcs
+                    / Kng</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Supplier / Agen (Opsional)</label>
+                <input id="nama-supplier" type="text" placeholder="Contoh: Agen Makmur Grosir"
+                  class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-slate-600 transition" />
+              </div>
+
+              <hr class="border-slate-200" />
+
+              <button type="button" onclick="simpanStok()"
+                class="w-full bg-brand hover:bg-blue-900 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                <i class="fa-solid fa-save"></i> Simpan Stok Masuk
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-lg text-slate-800">Riwayat Masuk Terakhir</h3>
+                <p class="text-sm text-slate-500 mt-1">Daftar barang yang baru saja ditambahkan ke sistem.</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto p-0">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                    <th class="px-6 py-4 font-semibold text-center">No</th>
+                    <th class="px-6 py-4 font-semibold">Tanggal</th>
+                    <th class="px-6 py-4 font-semibold">Nama Barang</th>
+                    <th class="px-6 py-4 font-semibold">Supplier</th>
+                    <th class="px-6 py-4 font-semibold text-center">Jml Masuk</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-riwayat" class="divide-y divide-slate-100 text-sm">
+                  <tr>
+                    <td colspan="5" class="text-center py-8 text-slate-500">Memuat riwayat stok dari database...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex-1 bg-slate-50/50"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
+      document.getElementById('tanggal-hari-ini').innerText = tanggalSekarang;
+    });
+  </script>
+
+  <script src="js/stok-masuk.js"></script>
+  <div id="toast-stok-sukses"
+    class="hidden fixed bottom-5 right-5 z-50 transform transition-all duration-500 scale-90 opacity-0">
+    <div
+      class="bg-emerald-500 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-400">
+      <div
+        class="bg-white text-emerald-500 w-7 h-7 rounded-full flex items-center justify-center shadow-sm animate-bounce">
+        <i class="fa-solid fa-check text-sm font-black"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm leading-tight">Stok Masuk Berhasil!</h4>
+        <p class="text-xs text-emerald-100 mt-0.5">Data stok baru telah aman disimpan ke database MySQL.</p>
+      </div>
+    </div>
+  </div>
+  <div id="toast-stok-peringatan"
+    class="hidden fixed bottom-5 right-5 z-50 transform transition-all duration-500 scale-90 opacity-0">
+    <div
+      class="bg-amber-500 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-amber-400">
+      <div
+        class="bg-white text-amber-500 w-7 h-7 rounded-full flex items-center justify-center shadow-sm font-black text-sm">
+        !
+      </div>
+      <div>
+        <h4 class="font-bold text-sm leading-tight">Input Tidak Valid!</h4>
+        <p id="teks-peringatan" class="text-xs text-amber-100 mt-0.5">Pilih barang dan masukkan jumlah minimal 1!</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

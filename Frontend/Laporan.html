@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Keuangan - SIM Warung Sembako Berkah</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#000000',
+                            DEFAULT: '#1e3a8a',
+                            light: '#bfdbfe',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-800">
+
+    <aside class="w-64 bg-gradient-to-b from-black to-brand text-white flex flex-col shadow-lg z-10 shrink-0">
+        <div class="flex flex-col items-center justify-center text-center p-6 border-b border-slate-800v">
+            <img src="assets/WB.png" alt="Logo Warung Berkah" class="w-40 h-auto object-contain mb-2" />
+
+            <div>
+                <p class="text-xs text-slate-100 tracking-wider font-medium uppercase">Sistem Inventaris v1.0</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <a href="Dashboard.html"
+                class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition"><i
+                    class="fa-solid fa-chart-pie w-6"></i> Dashboard Utama</a>
+            <a href="Master-data.html"
+                class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition"><i
+                    class="fa-solid fa-boxes-stacked w-6"></i> Master Data Barang</a>
+            <a href="Stok-masuk.html"
+                class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition"><i
+                    class="fa-solid fa-cart-arrow-down w-6"></i> Catat Stok Masuk</a>
+            <a href="Kasir.html"
+                class="flex items-center px-4 py-3 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition"><i
+                    class="fa-solid fa-cash-register w-6"></i> Modul Kasir (POS)</a>
+            <a href="Laporan.html"
+                class="flex items-center px-4 py-3 bg-white/10 text-white rounded-lg font-semibold shadow-sm border border-white/5 backdrop-blur-sm transition"><i
+                    class="fa-solid fa-file-invoice-dollar w-6"></i> Laporan Keuangan</a>
+        </nav>
+        <div class="p-4 border-t border-slate-800 text-center text-sm text-brand-light">
+            <p><i class="fa-solid fa-user-circle"></i> Login sbg: Pemilik</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header
+            class="bg-white border-b border-slate-200 px-8 py-4 flex flex-col sm:flex-row justify-between sm:items-center sticky top-0 z-10 shadow-sm gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">Laporan Laba & Transaksi</h2>
+                <p class="text-sm text-slate-500 mt-1">Evaluasi performa penjualan dan pergerakan kas warung.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="filter-periode" onchange="aturInputTanggal()"
+                    class="px-4 py-2 border border-slate-300 rounded-lg outline-none cursor-pointer text-sm">
+                    <option value="Semua">Semua Waktu</option>
+                    <option value="HariIni">Hari Ini</option>
+                    <option value="BulanIni">Bulan Ini</option>
+                    <option value="Kustom">Pilih Tanggal Kustom...</option>
+                </select>
+
+                <div id="input-tanggal-kustom" class="hidden flex items-center gap-1.5 animate-fade-in">
+                    <input type="date" id="tgl-mulai" onchange="loadRiwayatTransaksi()"
+                        class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs outline-none">
+                    <span class="text-xs text-slate-400">s/d</span>
+                    <input type="date" id="tgl-selesai" onchange="loadRiwayatTransaksi()"
+                        class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs outline-none">
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i class="fa-solid fa-wallet text-xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Pendapatan Kotor
+                        (Omset)</h3>
+                    <p class="text-2xl font-black text-slate-800" id="teks-omset">Rp 0</p>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-brand to-blue-900 rounded-xl border border-blue-800 p-6 shadow-md text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-white/20 rounded-lg"><i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                        </div>
+                        <span
+                            class="text-xs font-bold text-white bg-green-500/80 px-2 py-1 rounded-full border border-green-400">Keuntungan</span>
+                    </div>
+                    <h3 class="text-sm font-medium text-blue-200 uppercase tracking-wider mb-1">Estimasi Laba Bersih
+                    </h3>
+                    <p class="text-2xl font-black" id="teks-laba">Rp 0</p>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-purple-50 text-purple-600 rounded-lg"><i
+                                class="fa-solid fa-receipt text-xl"></i></div>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Transaksi Kasir
+                    </h3>
+                    <p class="text-2xl font-black text-slate-800"><span id="teks-transaksi">0</span> <span
+                            class="text-sm font-medium text-slate-500">Struk</span></p>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm opacity-50 relative">
+                    <div class="absolute inset-0 bg-white/40 z-10 flex items-center justify-center rounded-xl"><span
+                            class="bg-slate-800 text-white text-xs px-2 py-1 rounded font-bold">Segera Hadir</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-orange-50 text-orange-600 rounded-lg"><i
+                                class="fa-solid fa-truck-ramp-box text-xl"></i></div>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Pengeluaran Restock
+                    </h3>
+                    <p class="text-2xl font-black text-slate-800">Rp 0</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-lg text-slate-800">Riwayat Transaksi Terbaru</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                                <th class="px-6 py-4 font-semibold">Tanggal & Waktu</th>
+                                <th class="px-6 py-4 font-semibold">No. Struk</th>
+                                <th class="px-6 py-4 font-semibold text-right">Total Belanja</th>
+                                <th class="px-6 py-4 font-semibold text-right">Estimasi Laba</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-riwayat" class="divide-y divide-slate-100 text-sm">
+                            <tr>
+                                <td colspan="4" class="text-center py-6 text-slate-500">Memuat data transaksi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 opacity-75">
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm lg:col-span-2 relative">
+                    <div class="absolute inset-0 z-10 flex items-center justify-center rounded-xl pointer-events-none">
+                        <span class="bg-slate-800/80 text-white px-3 py-1.5 rounded font-bold shadow-lg">Contoh
+                            Visualisasi (Dummy)</span></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-slate-800">Grafik Laba (Contoh)</h3>
+                    </div>
+                    <div class="relative h-64 w-full"><canvas id="financeChart"></canvas></div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col relative">
+                    <div class="absolute inset-0 z-10 flex items-center justify-center rounded-xl pointer-events-none">
+                        <span class="bg-slate-800/80 text-white px-3 py-1.5 rounded font-bold shadow-lg">Fitur
+                            Mendatang</span></div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Top Barang Terlaris</h3>
+                    <ul class="space-y-4 flex-1">
+                        <li
+                            class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm shadow">
+                                    1</div>
+                                <div>
+                                    <p class="font-bold text-slate-800 text-sm">Beras Rojolele 5kg</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/laporan.js?v=999"></script>
+</body>
+
+</html>
